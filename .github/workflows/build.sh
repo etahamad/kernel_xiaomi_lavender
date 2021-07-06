@@ -1,22 +1,47 @@
 #!/usr/bin/env bash
+
+# Main exports
+# Kernel naming
 NAME=ChipsKernel
 KERNELVERSION=v1.1
-IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
+
+# CI
+DISTRO=$(cat /etc/issue)
 TANGGAL=$(date +"%F-%S")
 START=$(date +"%s")
+PROCS=$(nproc --all)
+CI_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 KERNEL_DIR=$(pwd)
 PATH="${KERNEL_DIR}/clang/bin:${KERNEL_DIR}/gcc/bin:${KERNEL_DIR}/gcc32/bin:${PATH}"
 export KBUILD_COMPILER_STRING="$(${KERNEL_DIR}/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')"
 export ARCH=arm64
-export KBUILD_BUILD_HOST=github
+
+# 
+export KBUILD_BUILD_HOST=GitHubActions
 export KBUILD_BUILD_USER="etahamad"
+
+# Set a commit head
+COMMIT_HEAD=$(git log --oneline -1)
+
+# Set Date 
+DATE=$(TZ=Africa/Cairo date +"%Y%m%d-%s")
+
+# The name of the device for which the kernel is built
+MODEL="Xiaomi Redmi Note 7"
+
+# The codename of the device
+DEVICE="Lavender"
+
+#Check Kernel Version
+KERVER=$(make kernelversion)
 
 function sendinfo() {
     curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
         -d chat_id="$chat_id" \
         -d "disable_web_page_preview=true" \
         -d "parse_mode=html" \
-        -d text="<b>• Chips Kernel •</b>%0ABuild started on <code>GitHub Actions</code>%0AFor device <b>Xiaomi Redmi Note7/7S</b> (lavender)%0Abranch <code>$(git rev-parse --abbrev-ref HEAD)</code> (master)%0AUnder commit <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AUsing compiler <code>${KBUILD_COMPILER_STRING}</code>%0AStarted on <code>$(date)</code>"
+        -d text="<b>CI Build Triggered</b>%0A<b>Build Number: </b><code>$GITHUB_RUN_NUMBER</code>%0A<b>OS: </b><code>$DISTRO</code>%0A<b>Kernel Version: </b><code>$KERVER</code>%0A<b>Camera Version: </b><code>$CAM</code>%0A<b>Date: </b><code>$(TZ=Africa/Cairo date)</code>%0A<b>Device: </b><code>$MODEL [$DEVICE]</code>%0A<b>Pipeline Host: </b><code>$KBUILD_BUILD_HOST</code>%0A<b>Host Core Count: </b><code>$PROCS</code>%0A<b>Compiler Used: </b><code>$KBUILD_COMPILER_STRING</code>%0A<b>Branch: </b><code>$CI_BRANCH</code>%0A<b>Top Commit: </b><code>$COMMIT_HEAD</code>"
 }
 
 function finerr() {
@@ -45,7 +70,7 @@ function compile() {
 }
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 ${NAME}-${KERNELVERSION}-${CAM}-${TANGGAL}.zip *
+    zip -r9 ${NAME}-${KERNELVERSION}-${CAM}-${TANGGAL}-${GITHUB_RUN_NUMBER}.zip *
     cd ..
 }
 
@@ -56,7 +81,7 @@ function push() {
         -F chat_id="$chat_id" \
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
-        -F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | For <b>Xiaomi Redmi Note 7/7s (lavender)</b> | <b>$(${GCC}gcc --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')</b>"
+        -F caption="Build took: $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
 }
 
 sendinfo
