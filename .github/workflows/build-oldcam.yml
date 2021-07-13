@@ -29,6 +29,5 @@ jobs:
         run: bash .github/workflows/build.sh
         env:
           CAM: OldCam
-          GITHUB_RUN_ID: GITHUB_RUN_NUMBER
           token: ${{ secrets.TELEGRAM_CI_BOT_TOKEN }}
           chat_id: ${{ secrets.TELEGRAM_CI_CHANNEL_ID }}
