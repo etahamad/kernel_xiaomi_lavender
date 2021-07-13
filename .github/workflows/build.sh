@@ -3,7 +3,7 @@
 # Main exports
 # Kernel naming
 NAME=ChipsKernel
-KERNELVERSION=v1.1
+KERNELVERSION=$(make kernelversion)
 
 # CI
 DISTRO=$(cat /etc/issue)
@@ -70,7 +70,7 @@ function compile() {
 }
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 ${NAME}-${KERNELVERSION}-${CAM}-${TANGGAL}-${GITHUB_RUN_NUMBER}.zip *
+    zip -r9 ${NAME}-v${KERNELVERSION}-${CAM}-${TANGGAL}-${GITHUB_RUN_NUMBER}.zip *
     cd ..
 }
 
