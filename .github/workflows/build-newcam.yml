@@ -1,9 +1,9 @@
 name: Build NewCam
 on:
   push:
-    branches: [ chips ]
+    branches: [ chips-hmp ]
   pull_request:
-    branches: [ chips ]
+    branches: [ chips-hmp ]
   workflow_dispatch:
 
 jobs:

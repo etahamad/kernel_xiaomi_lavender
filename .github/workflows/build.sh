@@ -70,7 +70,7 @@ function compile() {
 }
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 ${NAME}-v${KERNELVERSION}-${CAM}-${TANGGAL}-${GITHUB_RUN_NUMBER}.zip *
+    zip -r9 ${NAME}-v${KERNELVERSION}-HMP-${CAM}-${TANGGAL}-${GITHUB_RUN_NUMBER}.zip *
     cd ..
 }
 
