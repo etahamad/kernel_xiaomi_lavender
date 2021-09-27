@@ -1,0 +1,33 @@
+name: Build OldCam
+on:
+  push:
+    branches: [ chips ]
+  pull_request:
+    branches: [ chips ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setting initial vars
+        run: |
+           git config --global user.name "Omar Hamad"
+           git config --global user.email "etahamad@icloud.com"
+           git config --global color.ui false
+      
+      - name: Cloning dependencies
+        run: |
+           git clone --depth=1 https://github.com/sohamxda7/llvm-stable  clang
+           git clone --depth=1 https://github.com/sohamxda7/llvm-stable -b gcc64 gcc
+           git clone --depth=1 https://github.com/sohamxda7/llvm-stable -b gcc32 gcc32
+           git clone --depth=1 https://github.com/etahamad/AnyKernel3 -b lavender AnyKernel
+      
+      - name: Building
+        run: bash .github/workflows/build.sh
+        env:
+          CAM: OldCam
+          token: ${{ secrets.TELEGRAM_CI_BOT_TOKEN }}
+          chat_id: ${{ secrets.TELEGRAM_CI_CHANNEL_ID }}
